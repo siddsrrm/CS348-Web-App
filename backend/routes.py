@@ -129,3 +129,40 @@ def delete_reservation(reservation_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
+
+@reservation_routes.route('/reservations/<int:reservation_id>', methods=['PUT'])
+def update_reservation(reservation_id):
+    data = request.get_json()
+    try:
+        reservation = Reservations.query.get_or_404(reservation_id)
+        
+        # Update customer info
+        customer = Customers.query.filter_by(email=data['customerEmail']).first()
+        if not customer:
+            # Create new customer if email changed
+            customer = Customers(
+                name=data['customerName'],
+                email=data['customerEmail']
+            )
+            db.session.add(customer)
+            db.session.flush()
+        else:
+            # Update existing customer name if needed
+            customer.name = data['customerName']
+        
+        # Update reservation details
+        date_obj = datetime.strptime(data['date'], '%Y-%m-%d').date()
+        time_obj = datetime.strptime(data['time'], '%H:%M').time()
+        
+        reservation.date = date_obj
+        reservation.time = time_obj
+        reservation.num_guests = int(data['partySize'])
+        reservation.table_id = int(data['tableId'])
+        reservation.customer_id = customer.customer_id
+        
+        db.session.commit()
+        return jsonify({'message': 'Reservation updated successfully'}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400

@@ -112,8 +112,18 @@ const ViewReservations = () => {
   };
 
   const handleEdit = (reservation) => {
+    // Prepare the reservation data with the correct property names
+    const editData = {
+      id: reservation.id,
+      customerName: reservation.customerName,
+      customerEmail: reservation.customerEmail,
+      date: reservation.date,
+      time: reservation.time,
+      partySize: reservation.partySize,
+      tableId: reservation.tableId
+    };
     // Navigate to reservation form with the reservation data
-    navigate('/', { state: { editingReservation: reservation } });
+    navigate('/', { state: { editingReservation: editData } });
   };
 
   if (loading) return <div className="min-h-screen bg-[#242424] p-8 text-white">Loading...</div>;

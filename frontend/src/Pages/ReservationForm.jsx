@@ -1,7 +1,10 @@
 // ReservationForm.jsx
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
-const ReservationForm = ({ editingReservation, onSubmit }) => {
+const ReservationForm = () => {
+  const location = useLocation();
+  const editingReservation = location.state?.editingReservation;
   const [tables, setTables] = useState([]);
   const [formData, setFormData] = useState({
     customerName: "",
@@ -42,13 +45,14 @@ const ReservationForm = ({ editingReservation, onSubmit }) => {
   // Populate form if editing
   useEffect(() => {
     if (editingReservation) {
+      console.log('Editing reservation:', editingReservation); // Debug log
       setFormData({
-        customerName: editingReservation.customerName,
-        customerEmail: editingReservation.customerEmail,
-        date: editingReservation.date,
-        time: editingReservation.time,
-        partySize: editingReservation.partySize,
-        tableId: editingReservation.tableId
+        customerName: editingReservation.customerName || '',
+        customerEmail: editingReservation.customerEmail || '',
+        date: editingReservation.date || '',
+        time: editingReservation.time || '',
+        partySize: editingReservation.partySize || '',
+        tableId: editingReservation.tableId ? editingReservation.tableId.toString() : ''
       });
     }
   }, [editingReservation]);
@@ -60,26 +64,29 @@ const ReservationForm = ({ editingReservation, onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (editingId) {
-        onSubmit(formData, editingId);
-      } else {
-        const response = await fetch('http://127.0.0.1:5000/api/reservations', {
-          method: 'POST',
+      const response = await fetch(
+        editingId 
+          ? `http://127.0.0.1:5000/api/reservations/${editingId}`
+          : 'http://127.0.0.1:5000/api/reservations',
+        {
+          method: editingId ? 'PUT' : 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(formData)
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to create reservation');
         }
+      );
 
-        const result = await response.json();
-        console.log('Reservation created:', result);
-        
-        // Reset form
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to ${editingId ? 'update' : 'create'} reservation`);
+      }
+
+      const result = await response.json();
+      console.log(editingId ? 'Reservation updated:' : 'Reservation created:', result);
+      
+      if (!editingId) {
+        // Only reset form if creating new reservation
         setFormData({
           customerName: "",
           customerEmail: "",
@@ -88,13 +95,18 @@ const ReservationForm = ({ editingReservation, onSubmit }) => {
           partySize: "",
           tableId: ""
         });
+      }
 
-        // You might want to show a success message to the user
-        alert('Reservation created successfully!');
+      // Show appropriate success message
+      alert(editingId ? 'Reservation updated successfully!' : 'Reservation created successfully!');
+      
+      // Navigate back to the reservations list after update
+      if (editingId) {
+        window.history.back();
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error creating reservation: ' + error.message);
+      alert(`Error ${editingId ? 'updating' : 'creating'} reservation: ` + error.message);
     }
   };
 
