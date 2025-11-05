@@ -1,25 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import './App.css'
 import ReservationForm from './Pages/ReservationForm'
 import ViewReservations from './Pages/ViewReservations'
 
 function App() {
-  // Minimal tables data to pass to the form
-  const [tables] = useState([
-    { id: 't1', location: 'Window', capacity: 2 },
-    { id: 't2', location: 'Center', capacity: 4 },
-    { id: 't3', location: 'Patio', capacity: 6 },
-  ])
+ 
 
-  // Simple onSubmit handler that logs the data (replace with real API call later)
   const handleSubmit = (data, editingId) => {
     if (editingId) {
-      console.log('Update reservation', editingId, data)
+      console.log('Update reservation', editingId, data);
     } else {
-      console.log('Create reservation', data)
+      console.log('Create reservation', data);
     }
-  }
+  };
 
   const HomePage = () => (
     <div className="min-h-screen flex relative">
@@ -32,10 +25,9 @@ function App() {
       <ReservationForm
         editingReservation={null}
         onSubmit={handleSubmit}
-        tables={tables}
       />
     </div>
-  )
+  );
 
   return (
     <Router>
@@ -44,7 +36,7 @@ function App() {
         <Route path="/reservations" element={<ViewReservations />} />
       </Routes>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
