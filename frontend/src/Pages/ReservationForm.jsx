@@ -193,11 +193,13 @@ const ReservationForm = () => {
             required
           >
             <option value="">Select a table</option>
-            {tables.map((table) => (
-              <option key={table.table_id} value={table.table_id}>
-                Table {table.table_id} (Capacity: {table.capacity})
-              </option>
-            ))}
+            {tables
+              .filter(table => table.capacity >= parseInt(formData.partySize || 0))
+              .map((table) => (
+                <option key={table.table_id} value={table.table_id}>
+                  Table {table.table_id} (Capacity: {table.capacity})
+                </option>
+              ))}
           </select>
         </div>
 
