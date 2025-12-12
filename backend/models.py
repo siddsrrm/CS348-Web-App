@@ -40,7 +40,7 @@ class Reservations(db.Model):
     
     #indexs
     __table_args__ = (
-        db.Index('ix_reservations_date_table', 'date', 'table_id'),
+        db.Index('ix_reservations_date_table', 'date', 'table_id', 'time'),
     )
 
     # Relationships
