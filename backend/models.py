@@ -37,6 +37,11 @@ class Reservations(db.Model):
     # Foreign keys
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.customer_id'), nullable=False)
     table_id = db.Column(db.Integer, db.ForeignKey('tables.table_id'), nullable=False)
+    
+    #indexs
+    __table_args__ = (
+        db.Index('ix_reservations_date_table', 'date', 'table_id'),
+    )
 
     # Relationships
     customer = db.relationship('Customers', back_populates='reservations')
